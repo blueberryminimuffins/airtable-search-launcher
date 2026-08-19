@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Airtable Search Launcher</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 40px;
+      text-align: center;
+      color: #222;
+    }
+
+    .box {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.1);
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    button {
+      background: #1677ff;
+      color: white;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #095fd1;
+    }
+
+    #status {
+      margin-top: 20px;
+      color: #666;
+    }
+
+    .links {
+      text-align: left;
+      margin-top: 25px;
+    }
+
+    .links div {
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+
+  <h1>Search Launcher</h1>
+
+  <p id="description">
+    Ready to open your searches.
+  </p>
+
+  <button onclick="openAll()">
+    Open All 9 Searches
+  </button>
+
+  <div id="status"></div>
+
+  <div class="links" id="links"></div>
+
+</div>
+
+<script>
+
+const names = [
+  "Amazon UPC",
+  "Amazon Title",
+  "eBay New UPC",
+  "eBay New Title",
+  "eBay Used UPC",
+  "eBay Used Title",
+  "Mercari Title",
+  "Walmart UPC",
+  "Walmart Title"
+];
+
+const params = new URLSearchParams(window.location.search);
+
+const urls = [];
+
+for (let i = 1; i <= 9; i++) {
+  const url = params.get("u" + i);
+
+  if (url) {
+    urls.push(url);
+  }
+}
+
+
+// Display the searches on the page
+const linksDiv = document.getElementById("links");
+
+urls.forEach((url, index) => {
+
+  const div = document.createElement("div");
+
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+
+  link.textContent = names[index] || "Search " + (index + 1);
+
+  div.appendChild(link);
+  linksDiv.appendChild(div);
+
+});
+
+
+// Open all searches
+function openAll() {
+
+  if (urls.length === 0) {
+    document.getElementById("status").textContent =
+      "No search URLs were provided.";
+    return;
+  }
+
+  let opened = 0;
+
+  urls.forEach((url) => {
+
+    const newWindow = window.open(url, "_blank");
+
+    if (newWindow) {
+      opened++;
+    }
+
+  });
+
+  document.getElementById("status").textContent =
+    "Attempted to open " + urls.length +
+    " searches. " + opened +
+    " tabs were opened.";
+
+}
+
+</script>
+
+</body>
+</html>
