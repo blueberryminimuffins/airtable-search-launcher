@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Airtable Search Launcher</title>
+  <title>Search Launcher</title>
 
   <style>
     body {
@@ -90,7 +90,7 @@
   </p>
 
   <button id="openButton" onclick="openAll()">
-    Open All 9 Searches
+    Open All
   </button>
 
   <div id="loading">
@@ -121,17 +121,14 @@ const names = [
   "eBay New UPC",
   "eBay New Title",
   "eBay Used UPC",
-  "eBay Used Title",
-  "Mercari Title",
-  "Walmart UPC",
-  "Walmart Title"
+  "eBay Used Title"
 ];
 
 const params = new URLSearchParams(window.location.search);
 
 const urls = [];
 
-for (let i = 1; i <= 9; i++) {
+for (let i = 1; i <= names.length; i++) {
 
   const url = params.get("u" + i);
 
@@ -140,6 +137,18 @@ for (let i = 1; i <= 9; i++) {
   }
 
 }
+
+
+// Update button text dynamically
+document.getElementById("openButton").textContent =
+  "Open All";
+
+
+// Update description dynamically
+document.getElementById("description").textContent =
+  urls.length > 0
+    ? "Ready to open your searches."
+    : "No searches were provided.";
 
 
 // Display searches
@@ -166,6 +175,21 @@ urls.forEach((url, index) => {
 
 // Prevent duplicate automatic launches
 let launchAttempted = false;
+
+
+// Try to close the launcher
+function closeLauncher() {
+
+  setTimeout(() => {
+
+    window.close();
+
+    // Some browsers ignore window.close()
+    // if this page was not opened by JavaScript.
+
+  }, 500);
+
+}
 
 
 // Open searches
@@ -213,8 +237,14 @@ function openAll() {
 
         if (opened < urls.length) {
 
+          // Some tabs were blocked
           document.getElementById("manual").style.display =
             "block";
+
+        } else {
+
+          // All searches opened successfully
+          closeLauncher();
 
         }
 
@@ -250,6 +280,14 @@ function openAllFromClick() {
 
   document.getElementById("status").textContent =
     "Opened " + opened + " of " + urls.length + " searches.";
+
+  // If all searches opened from the manual attempt,
+  // try to close the launcher as well.
+  if (opened === urls.length) {
+
+    closeLauncher();
+
+  }
 
 }
 
