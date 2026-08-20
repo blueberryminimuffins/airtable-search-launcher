@@ -36,6 +36,7 @@
       border-radius: 8px;
       font-size: 16px;
       cursor: pointer;
+      margin-top: 10px;
     }
 
     button:hover {
@@ -56,6 +57,19 @@
       padding: 8px;
       border-bottom: 1px solid #eee;
     }
+
+    #manual {
+      display: none;
+      margin-top: 20px;
+    }
+
+    #manual button {
+      background: #28a745;
+    }
+
+    #manual button:hover {
+      background: #218838;
+    }
   </style>
 </head>
 
@@ -69,11 +83,17 @@
     Ready to open your searches.
   </p>
 
-  <button onclick="openAll()">
+  <button id="openButton" onclick="openAll()">
     Open All 9 Searches
   </button>
 
   <div id="status"></div>
+
+  <div id="manual">
+    <button onclick="openAll()">
+      Click Here to Open All 9 Searches
+    </button>
+  </div>
 
   <div class="links" id="links"></div>
 
@@ -150,10 +170,28 @@ function openAll() {
 
   document.getElementById("status").textContent =
     "Attempted to open " + urls.length +
-    " searches. " + opened +
-    " tabs were opened.";
+    " searches. " + opened + " tabs were opened.";
+
+  // If some/all were blocked, show manual button
+  if (opened < urls.length) {
+    document.getElementById("manual").style.display = "block";
+  } else {
+    document.getElementById("manual").style.display = "none";
+  }
 
 }
+
+
+// Automatically attempt to open searches when page loads
+window.addEventListener("load", () => {
+
+  setTimeout(() => {
+
+    openAll();
+
+  }, 300);
+
+});
 
 </script>
 
