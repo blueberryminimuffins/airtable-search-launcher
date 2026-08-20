@@ -70,6 +70,12 @@
     #manual button:hover {
       background: #218838;
     }
+
+    #loading {
+      display: none;
+      margin-top: 15px;
+      color: #1677ff;
+    }
   </style>
 </head>
 
@@ -87,11 +93,19 @@
     Open All 9 Searches
   </button>
 
+  <div id="loading">
+    Opening searches...
+  </div>
+
   <div id="status"></div>
 
   <div id="manual">
-    <button onclick="openAll()">
-      Click Here to Open All 9 Searches
+    <p>
+      Chrome blocked some of the searches.
+    </p>
+
+    <button onclick="openAllFromClick()">
+      Click Here to Open Blocked Searches
     </button>
   </div>
 
@@ -118,15 +132,17 @@ const params = new URLSearchParams(window.location.search);
 const urls = [];
 
 for (let i = 1; i <= 9; i++) {
+
   const url = params.get("u" + i);
 
   if (url) {
     urls.push(url);
   }
+
 }
 
 
-// Display the searches on the page
+// Display searches
 const linksDiv = document.getElementById("links");
 
 urls.forEach((url, index) => {
@@ -139,7 +155,8 @@ urls.forEach((url, index) => {
   link.target = "_blank";
   link.rel = "noopener noreferrer";
 
-  link.textContent = names[index] || "Search " + (index + 1);
+  link.textContent =
+    names[index] || "Search " + (index + 1);
 
   div.appendChild(link);
   linksDiv.appendChild(div);
@@ -147,49 +164,104 @@ urls.forEach((url, index) => {
 });
 
 
-// Open all searches
+// Prevent duplicate automatic launches
+let launchAttempted = false;
+
+
+// Open searches
 function openAll() {
 
-  if (urls.length === 0) {
-    document.getElementById("status").textContent =
-      "No search URLs were provided.";
+  if (launchAttempted) {
     return;
   }
+
+  launchAttempted = true;
+
+  if (urls.length === 0) {
+
+    document.getElementById("status").textContent =
+      "No search URLs were provided.";
+
+    return;
+  }
+
+  document.getElementById("loading").style.display = "block";
+
+  let opened = 0;
+
+  urls.forEach((url, index) => {
+
+    setTimeout(() => {
+
+      const newTab = window.open(
+        url,
+        "_blank"
+      );
+
+      if (newTab) {
+        opened++;
+      }
+
+      // Finished attempting all URLs
+      if (index === urls.length - 1) {
+
+        document.getElementById("loading").style.display =
+          "none";
+
+        document.getElementById("status").textContent =
+          "Opened " + opened + " of " + urls.length + " searches.";
+
+        if (opened < urls.length) {
+
+          document.getElementById("manual").style.display =
+            "block";
+
+        }
+
+      }
+
+    }, index * 150);
+
+  });
+
+}
+
+
+// Manual button
+function openAllFromClick() {
 
   let opened = 0;
 
   urls.forEach((url) => {
 
-    const newWindow = window.open(url, "_blank");
+    const newTab = window.open(
+      url,
+      "_blank"
+    );
 
-    if (newWindow) {
+    if (newTab) {
       opened++;
     }
 
   });
 
-  document.getElementById("status").textContent =
-    "Attempted to open " + urls.length +
-    " searches. " + opened + " tabs were opened.";
+  document.getElementById("manual").style.display =
+    "none";
 
-  // If some/all were blocked, show manual button
-  if (opened < urls.length) {
-    document.getElementById("manual").style.display = "block";
-  } else {
-    document.getElementById("manual").style.display = "none";
-  }
+  document.getElementById("status").textContent =
+    "Opened " + opened + " of " + urls.length + " searches.";
 
 }
 
 
-// Automatically attempt to open searches when page loads
+// Automatically attempt launch
 window.addEventListener("load", () => {
 
   setTimeout(() => {
 
     openAll();
 
-  }, 300);
+  }, 500);
 
 });
 
